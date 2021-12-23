@@ -1,4 +1,3 @@
-
 import easyocr
 import cv2
 
