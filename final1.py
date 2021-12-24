@@ -39,11 +39,6 @@ def func_remove_all():
         count = 0
 
 
-def func_remove_one():
-    x = my_tree.selection()[0]
-    my_tree.delete(x)
-
-
 def func_select(event):
     id_box.delete(0, END)
     name_box.delete(0, END)
@@ -91,7 +86,10 @@ def select_file(choice):
             title='Open a file',
             initialdir='/',
             filetypes=filetypes)
-        img = Image.open(filename_img)
+        if filename_img:
+            img = Image.open(filename_img)
+        else:
+            img = None
         if img is None:
             showinfo(title='Could not open or find the image:',
                      message=filename_img)
@@ -99,9 +97,8 @@ def select_file(choice):
             showinfo(title='Selected File',
                      message=filename_img)
             func_view_photo(img)
-            Button(my_frame_but_2, text="Сканировать изображение", command=lambda: func_scan_img(filename_img)).grid(
-                row=0,
-                column=0)
+            ttk.Button(my_frame_but_2, text="Сканировать изображение",
+                       command=lambda: func_scan_img(filename_img)).grid(row=0, column=0)
             func_fill_tree()
     else:
         filetypes = (('images files', '*.csv'),
@@ -112,11 +109,12 @@ def select_file(choice):
             filetypes=filetypes)
         showinfo(title='Selected File',
                  message=filename_csv)
-        func_view_csv(filename_csv)
+        if filename_csv:
+            func_view_csv(filename_csv)
 
 
 def func_view_photo(img):
-    img = img.resize((472, 675), Image.ANTIALIAS)
+    img = img.resize((int(new_width/2)-150, int(new_height)-100), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
     panel.config(image=img)
     panel.image = img
@@ -127,9 +125,8 @@ def func_view_csv(filename):
         reader = csv.reader(f, delimiter=',')
         read_list = list(reader)
         read_list2 = read_list[0]
-        for i in range(0, len(read_list2)):
-            print(read_list2[i])
         count = 0
+        func_remove_all()
         for i in text:
             my_tree.insert(parent='', index=END, iid=str(count), text='', values=(str(count), i, read_list2[count]))
             count += 1
@@ -145,20 +142,15 @@ def func_scan_img(filename_img):
 
 ws = Tk()
 ws.title('OCR')
-ws.geometry('1600x800')
+ws.config(background='#AFE1AF')
+width_wind = ws.winfo_screenwidth()
+height_wind = ws.winfo_screenheight()
+ws.geometry('%sx%s' % (int(width_wind/1.5), int(height_wind/1.5)))
+ws.resizable(width=False, height=False)
 
-panel = Label(ws)
-panel.place(x=50, y=50)
+new_width = int(width_wind/1.5)
 
-my_frame_text_before_tree = Frame(ws)
-
-Label(my_frame_text_before_tree, text="Выберите необходимую категорию для изменения:").pack(side=LEFT)
-
-my_frame_text_before_tree.grid(row=0, column=1, sticky=SW)
-
-my_frame_tree = Frame(ws)
-my_scrollbar_tree_y = Scrollbar(my_frame_tree, orient=VERTICAL)
-my_scrollbar_tree_x = Scrollbar(my_frame_tree, orient=HORIZONTAL)
+new_height = int(height_wind/1.5)
 
 style = ttk.Style()
 style.configure("Treeview",
@@ -166,15 +158,40 @@ style.configure("Treeview",
                 foreground="black",
                 rowheight=25,
                 fieldbackground="silver")
+style.configure('new.TFrame', background='#AFE1AF')
+style.configure('new.TLabel', foreground="black", background="#AFE1AF")
+#style.configure('.', font=('Helvetica', 12))
 style.map("Treeview", background=[('selected', 'green')])
+style.map('TButton',
+          foreground=[('!active', 'white'),
+                      ('pressed', 'white'),
+                      ('active', 'black')],
+          background=[('!active', '#008000'),
+                      ('pressed', '#006400'),
+                      ('active', 'white')]
+          )
 
-my_tree = ttk.Treeview(my_frame_tree, height=13)
+panel = ttk.Label(ws, style='new.TLabel', width=int(new_width/20)-25)
+panel.place(x=50, y=50)
+
+my_frame_text_before_tree = Frame(ws, background="white")
+
+ttk.Label(my_frame_text_before_tree, style='new.TLabel',
+          text="Выберите необходимую категорию для изменения:", width=int(new_width/20)).pack(side=LEFT)
+
+my_frame_text_before_tree.grid(row=0, column=1, sticky=SW)
+
+my_frame_tree = Frame(ws)
+my_scrollbar_tree_y = Scrollbar(my_frame_tree, orient=VERTICAL)
+my_scrollbar_tree_x = Scrollbar(my_frame_tree, orient=HORIZONTAL)
+
+my_tree = ttk.Treeview(my_frame_tree, height=10)
 
 my_tree['columns'] = ('ID', 'Категория', 'Данные')
 my_tree.column('#0', width=0, stretch=NO)
 my_tree.column('ID', anchor=W, width=50, minwidth=50)
-my_tree.column('Категория', anchor=W, minwidth=200)
-my_tree.column('Данные', anchor=W, width=730)
+my_tree.column('Категория', anchor=W, width=200, minwidth=200)
+my_tree.column('Данные', anchor=W, width=int(new_width/2)-200, minwidth=int(new_width/2)-200)
 
 my_tree.heading('#0', text='', anchor=CENTER)
 my_tree.heading('ID', text='ID', anchor=CENTER)
@@ -192,20 +209,21 @@ my_scrollbar_tree_x.config(command=my_tree.xview)
 
 my_tree.pack()
 
-my_frame_tree.grid(row=1, column=1, padx=0, pady=0, sticky=NW)
+my_frame_tree.grid(row=1, column=1, sticky=NW)
 
-my_frame_text_before_list = Frame(ws)
+my_frame_text_before_list = ttk.Frame(ws, style='new.TFrame', width=int(new_width/20))
 
-Label(my_frame_text_before_list, text="Укажите подходящие данные для занесения в выбранную категорию:\n \
-(для множественного выбора +ctrl)").pack(side=LEFT)
-
-Button(my_frame_text_before_list, text="Взять выбранные элементы", command=select_all).pack(side=RIGHT, padx=20)
+ttk.Label(my_frame_text_before_list, style='new.TLabel',
+          text="Укажите подходящие данные для занесения в выбранную категорию:").pack(side=TOP)
+ttk.Label(my_frame_text_before_list, style='new.TLabel',
+          text="(для множественного выбора +ctrl)").pack(side=LEFT)
+ttk.Button(my_frame_text_before_list, text="Взять выбранные элементы", command=select_all).pack(side=RIGHT)
 
 my_frame_text_before_list.grid(row=2, column=1, sticky=SW)
 
-my_frame_listbox = Frame(ws)
+my_frame_listbox = ttk.Frame(ws, style='new.TFrame')
 
-my_listbox = Listbox(my_frame_listbox, width=89, selectmode=EXTENDED)
+my_listbox = Listbox(my_frame_listbox, width=int(new_width/20), selectmode=EXTENDED)
 my_listbox.grid(row=0, column=0)
 
 my_scrollbar_list_y = Scrollbar(my_frame_listbox, orient=VERTICAL)
@@ -219,20 +237,21 @@ my_scrollbar_list_y.config(command=my_listbox.yview)
 my_scrollbar_list_x.config(command=my_listbox.xview)
 my_frame_listbox.grid(row=3, column=1, sticky=NW)
 
-my_frame_text_before_box = Frame(ws, width=90)
-
-Button(my_frame_text_before_box, text="Обновить содержимое", command=func_update).pack(side=RIGHT)
+my_frame_text_before_box = ttk.Frame(ws, style='new.TFrame', width=new_width/2)
+ttk.Label(my_frame_text_before_box, style='new.TLabel', text="Внесите при необходимости изменения в записи данныx,\n \
+после чего занесите их в таблицу:").pack(side=LEFT)
+ttk.Button(my_frame_text_before_box, text="Обновить", command=func_update).pack(side=RIGHT, padx=10)
 my_frame_text_before_box.grid(row=4, column=1, sticky=SW)
 
-my_frame_box = Frame(ws)
+my_frame_box = ttk.Frame(ws, style='new.TFrame', width=new_width/2)
 
 my_scrollbar_x2 = Scrollbar(my_frame_box, orient=HORIZONTAL)
 
-Label(my_frame_box, text="№").grid(row=0, column=0)
+ttk.Label(my_frame_box, style='new.TLabel', text="№").grid(row=0, column=0)
 
-Label(my_frame_box, text="Категория", width=20).grid(row=0, column=1)
+ttk.Label(my_frame_box, style='new.TLabel', text="Категория", width=20).grid(row=0, column=1)
 
-Label(my_frame_box, text="Данные", width=60).grid(row=0, column=2)
+ttk.Label(my_frame_box, style='new.TLabel', text="Данные", width=int(new_width/20)-30).grid(row=0, column=2)
 
 entryIdText = StringVar()
 entryNameText = StringVar()
@@ -246,28 +265,28 @@ name_box = Entry(my_frame_box, width=20, disabledbackground="white", disabledfor
                  textvariable=entryNameText)
 name_box.grid(row=1, column=1)
 
-data_box = Entry(my_frame_box, width=64, textvariable=entryDataText)
+data_box = Entry(my_frame_box, width=int(new_width/20)-25, textvariable=entryDataText)
 data_box.grid(row=1, column=2)
 
 my_scrollbar_x2.grid(row=2, column=2, sticky=EW)
 data_box.config(xscrollcommand=my_scrollbar_x2.set)
 my_scrollbar_x2.config(command=data_box.xview)
 
-my_frame_box.grid(row=5, column=1, padx=0, pady=0, sticky=NW)
+my_frame_box.grid(row=5, column=1, pady=0, sticky=NW)
 
 
-my_frame_but_1 = Frame(ws)
+my_frame_but_1 = ttk.Frame(ws, style='new.TFrame')
 
-Button(my_frame_but_1, text="Открыть изображение", command=lambda: select_file(True)).grid(row=0, column=0)
-Button(my_frame_but_1, text="Открыть .csv файл", command=lambda: select_file(False)).grid(row=0, column=1)
+ttk.Button(my_frame_but_1, text="Открыть изображение", width=int(new_width/50), command=lambda: select_file(True)).grid(row=0, column=0)
+ttk.Button(my_frame_but_1, text="Открыть .csv файл", width=int(new_width/50), command=lambda: select_file(False)).grid(row=0, column=1)
 
-my_frame_but_1.grid(row=0, column=0, padx=90,  sticky=NW)
+my_frame_but_1.grid(row=0, column=0)
 
 
-my_frame_but_2 = Frame(ws)
+my_frame_but_2 = ttk.Frame(ws, style='new.TFrame', width=new_width/2)
 
-Button(my_frame_but_2, text='Сохранить', command=func_save).grid(row=0, column=1)
+ttk.Button(my_frame_but_2, text='Сохранить', width=int(new_width/50), command=func_save).grid(row=0, column=1)
 
-my_frame_but_2.grid(row=6, column=0)
+my_frame_but_2.grid(row=5, column=0)
 
 ws.mainloop()
