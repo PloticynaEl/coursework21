@@ -145,10 +145,10 @@ ws.title('OCR')
 ws.config(background='#AFE1AF')
 width_wind = ws.winfo_screenwidth()
 height_wind = ws.winfo_screenheight()
-ws.geometry('%sx%s' % (int(width_wind/1.5), int(height_wind/1.5)))
+ws.geometry('%sx%s' % (int(width_wind/1.3), int(height_wind/1.5)))
 ws.resizable(width=False, height=False)
 
-new_width = int(width_wind/1.5)
+new_width = int(width_wind/1.3)
 
 new_height = int(height_wind/1.5)
 
@@ -160,7 +160,7 @@ style.configure("Treeview",
                 fieldbackground="silver")
 style.configure('new.TFrame', background='#AFE1AF')
 style.configure('new.TLabel', foreground="black", background="#AFE1AF")
-#style.configure('.', font=('Helvetica', 12))
+# style.configure('.', font=('Helvetica', 12))
 style.map("Treeview", background=[('selected', 'green')])
 style.map('TButton',
           foreground=[('!active', 'white'),
@@ -172,7 +172,7 @@ style.map('TButton',
           )
 
 panel = ttk.Label(ws, style='new.TLabel', width=int(new_width/20)-25)
-panel.place(x=50, y=50)
+panel.grid(row=1, column=0, rowspan=4)
 
 my_frame_text_before_tree = Frame(ws, background="white")
 
@@ -238,7 +238,7 @@ my_scrollbar_list_x.config(command=my_listbox.xview)
 my_frame_listbox.grid(row=3, column=1, sticky=NW)
 
 my_frame_text_before_box = ttk.Frame(ws, style='new.TFrame', width=new_width/2)
-ttk.Label(my_frame_text_before_box, style='new.TLabel', text="Внесите при необходимости изменения в записи данныx,\n \
+ttk.Label(my_frame_text_before_box, style='new.TLabel', text="Внесите при необходимости изменения в записи данных, \n \
 после чего занесите их в таблицу:").pack(side=LEFT)
 ttk.Button(my_frame_text_before_box, text="Обновить", command=func_update).pack(side=RIGHT, padx=10)
 my_frame_text_before_box.grid(row=4, column=1, sticky=SW)
@@ -277,8 +277,10 @@ my_frame_box.grid(row=5, column=1, pady=0, sticky=NW)
 
 my_frame_but_1 = ttk.Frame(ws, style='new.TFrame')
 
-ttk.Button(my_frame_but_1, text="Открыть изображение", width=int(new_width/50), command=lambda: select_file(True)).grid(row=0, column=0)
-ttk.Button(my_frame_but_1, text="Открыть .csv файл", width=int(new_width/50), command=lambda: select_file(False)).grid(row=0, column=1)
+ttk.Button(my_frame_but_1, text="Открыть изображение", width=int(new_width/50),
+           command=lambda: select_file(True)).grid(row=0, column=0)
+ttk.Button(my_frame_but_1, text="Открыть .csv файл", width=int(new_width/50),
+           command=lambda: select_file(False)).grid(row=0, column=1)
 
 my_frame_but_1.grid(row=0, column=0)
 
