@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-import final1_module
+import module
 import csv
 from PIL import Image, ImageTk
 from tkinter import filedialog as fd
@@ -145,11 +145,9 @@ ws.title('OCR')
 ws.config(background='#AFE1AF')
 width_wind = ws.winfo_screenwidth()
 height_wind = ws.winfo_screenheight()
-ws.geometry('%sx%s' % (int(width_wind/1.3), int(height_wind/1.5)))
 ws.resizable(width=False, height=False)
 
 new_width = int(width_wind/1.3)
-
 new_height = int(height_wind/1.5)
 
 style = ttk.Style()
@@ -163,7 +161,7 @@ style.configure('new.TLabel', foreground="black", background="#AFE1AF")
 # style.configure('.', font=('Helvetica', 12))
 style.map("Treeview", background=[('selected', 'green')])
 style.map('TButton',
-          foreground=[('!active', 'white'),
+          foreground=[('!active', 'black'),
                       ('pressed', 'white'),
                       ('active', 'black')],
           background=[('!active', '#008000'),
@@ -221,9 +219,9 @@ ttk.Button(my_frame_text_before_list, text="Взять выбранные эле
 
 my_frame_text_before_list.grid(row=2, column=1, sticky=SW)
 
-my_frame_listbox = ttk.Frame(ws, style='new.TFrame')
+my_frame_listbox = ttk.Frame(ws, style='new.TFrame', width=int(new_width/2))
 
-my_listbox = Listbox(my_frame_listbox, width=int(new_width/20), selectmode=EXTENDED)
+my_listbox = Listbox(my_frame_listbox, width=int(new_width/15), selectmode=EXTENDED)
 my_listbox.grid(row=0, column=0)
 
 my_scrollbar_list_y = Scrollbar(my_frame_listbox, orient=VERTICAL)
@@ -265,7 +263,7 @@ name_box = Entry(my_frame_box, width=20, disabledbackground="white", disabledfor
                  textvariable=entryNameText)
 name_box.grid(row=1, column=1)
 
-data_box = Entry(my_frame_box, width=int(new_width/20)-25, textvariable=entryDataText)
+data_box = Entry(my_frame_box, width=int(new_width/20), textvariable=entryDataText)
 data_box.grid(row=1, column=2)
 
 my_scrollbar_x2.grid(row=2, column=2, sticky=EW)
